@@ -17,9 +17,10 @@ limitations under the License.
 package testing
 
 import (
-	"istio.io/client-go/pkg/apis/networking/v1alpha3"
 	"path/filepath"
 	"sync"
+
+	"istio.io/client-go/pkg/apis/networking/v1alpha3"
 
 	"github.com/kubeflow/kfserving/pkg/apis/serving/v1alpha2"
 	"github.com/onsi/gomega"
@@ -38,9 +39,9 @@ func SetupEnvTest() *envtest.Environment {
 		// The relative paths must be provided for each level of test nesting
 		// This code should be illegal
 		CRDDirectoryPaths: []string{
-			filepath.Join("..", "..", "..", "..", "..", "config", "default", "crds", "base"),
+			filepath.Join("..", "..", "..", "..", "..", "config", "default", "crds", "generated"),
 			filepath.Join("..", "..", "..", "..", "..", "test", "crds"),
-			filepath.Join("..", "..", "..", "config", "default", "crds", "base"),
+			filepath.Join("..", "..", "..", "config", "default", "crds", "generated"),
 			filepath.Join("..", "..", "..", "test", "crds"),
 		},
 	}

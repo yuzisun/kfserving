@@ -16,7 +16,7 @@ namespace: kfserving-system
   # Comment the below certmanager if you are using a self-signed CA
   # (https://kubernetes.io/docs/concepts/cluster-administration/certificates)
 resources:
-- crds/base/serving.kubeflow.org_inferenceservices.yaml
+- crds/base/serving.kubeflow.org_crds.yaml
 - configmap/inferenceservice.yaml
 - rbac/role.yaml
 - rbac/rbac_role_binding.yaml
