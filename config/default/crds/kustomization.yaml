@@ -9,8 +9,7 @@
 # markers ("---").
 resources:
 - base/serving.kubeflow.org_inferenceservices.yaml
-- base/serving.kubeflow.org_services.yaml
-- base/serving.kubeflow.org_routers.yaml
+- base/serving.kubeflow.org_inferencerouters.yaml
 
 patchesJson6902:
   # crd codegen in controller tool generates the ref type when there is a type def https://github.com/kubernetes-sigs/controller-tools/issues/324
@@ -21,4 +20,3 @@ patchesJson6902:
     kind: CustomResourceDefinition
     name: inferenceservices.serving.kubeflow.org
   path: patches/crd_status_patch.yaml
-
