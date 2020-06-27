@@ -95,9 +95,11 @@ undeploy-dev:
 
 # Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=kfserving-manager-role webhook paths=./pkg/apis/... output:crd:dir=config/default/crds/base
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=kfserving-manager-role webhook paths=./pkg/apis/... output:crd:dir=config/default/crds/inferenceservice/generated
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=kfserving-manager-role webhook paths=./pkg/apis/... output:crd:dir=config/default/crds/inferencerouter/generated
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=kfserving-manager-role paths=./pkg/controller/inferenceservice/... output:rbac:artifacts:config=config/default/rbac
-	kustomize build config/default/crds -o config/default/crds/base/serving.kubeflow.org_inferenceservices.yaml
+	kustomize build config/default/crds/inferenceservice -o config/default/crds/base/serving.kubeflow.org_inferenceservices.yaml
+	kustomize build config/default/crds/inferencerouter -o config/default/crds/base/serving.kubeflow.org_inferencerouters.yaml
 	#TODO Remove this until new controller-tools is released
 	perl -pi -e 's/storedVersions: null/storedVersions: []/g' config/default/crds/base/serving.kubeflow.org_inferenceservices.yaml
 	perl -pi -e 's/conditions: null/conditions: []/g' config/default/crds/base/serving.kubeflow.org_inferenceservices.yaml
