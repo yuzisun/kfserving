@@ -50,7 +50,7 @@ const (
 
 func TestMain(m *testing.M) {
 	t := &envtest.Environment{
-		CRDDirectoryPaths: []string{filepath.Join("..", "..", "..", "..", "config", "default", "crds", "generated")},
+		CRDDirectoryPaths: []string{filepath.Join("..", "..", "..", "..", "config", "default", "crds", "base")},
 	}
 
 	err := SchemeBuilder.AddToScheme(scheme.Scheme)
