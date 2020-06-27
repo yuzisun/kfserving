@@ -98,6 +98,8 @@ manifests: controller-gen
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=kfserving-manager-role webhook paths=./pkg/apis/... output:crd:dir=config/default/crds/inferenceservice/generated
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=kfserving-manager-role webhook paths=./pkg/apis/... output:crd:dir=config/default/crds/inferencerouter/generated
 	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=kfserving-manager-role paths=./pkg/controller/inferenceservice/... output:rbac:artifacts:config=config/default/rbac
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths=./pkg/apis/serving/v1alpha2
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths=./pkg/apis/serving/v1beta1
 	kustomize build config/default/crds/inferenceservice -o config/default/crds/base/serving.kubeflow.org_inferenceservices.yaml
 	kustomize build config/default/crds/inferencerouter -o config/default/crds/base/serving.kubeflow.org_inferencerouters.yaml
 	#TODO Remove this until new controller-tools is released
