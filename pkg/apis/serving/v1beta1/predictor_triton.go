@@ -70,3 +70,7 @@ func (t *TritonSpec) GetContainer(modelName string, config *InferenceServicesCon
 func (t *TritonSpec) GetStorageUri() *string {
 	return t.StorageURI
 }
+
+func (t *TritonSpec) GetStorageUri() *string {
+	return t.StorageURI
+}
