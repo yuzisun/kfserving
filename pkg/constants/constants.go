@@ -219,6 +219,11 @@ func DefaultServiceName(name string, component InferenceServiceComponent) string
 	return name + "-" + component.String() + "-" + InferenceServiceDefault
 }
 
+//TODO: need to add shard id to the configmap name
+func DefaultMultiModelConfigMapName(inferenceserviceName string) string {
+	return "multiModelConfig" + "-" + inferenceserviceName
+}
+
 func CanaryServiceName(name string, component InferenceServiceComponent) string {
 	return name + "-" + component.String() + "-" + InferenceServiceCanary
 }

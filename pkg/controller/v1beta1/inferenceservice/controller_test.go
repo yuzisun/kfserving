@@ -24,6 +24,7 @@ import (
 	"github.com/kubeflow/kfserving/pkg/constants"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	//corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -81,6 +82,8 @@ var _ = Describe("v1beta1 inference service controller", func() {
 			serviceName := "foo"
 			var expectedRequest = reconcile.Request{NamespacedName: types.NamespacedName{Name: serviceName, Namespace: "default"}}
 			var serviceKey = expectedRequest.NamespacedName
+			//var multiModelConfigMapKey = types.NamespacedName{Name: constants.DefaultMultiModelConfigMapName(serviceName),
+			//	Namespace: serviceKey.Namespace}
 			var predictorService = types.NamespacedName{Name: constants.DefaultPredictorServiceName(serviceKey.Name),
 				Namespace: serviceKey.Namespace}
 			var storageUri = "s3://test/mnist/export"
@@ -110,10 +113,20 @@ var _ = Describe("v1beta1 inference service controller", func() {
 
 			Expect(k8sClient.Create(ctx, instance)).Should(Succeed())
 			inferenceService := &v1beta1.InferenceService{}
+			//multiModelConfigMap := &corev1.ConfigMap{}
 
-			// We'll need to retry getting this newly created CronJob, given that creation may not immediately happen.
 			Eventually(func() bool {
+				//Check if InferenceService is created
 				err := k8sClient.Get(ctx, serviceKey, inferenceService)
+				if err != nil {
+					return false
+				}
+				return true
+			}, timeout, interval).Should(BeTrue())
+
+			Eventually(func() bool {
+				//Check if multiModelConfigMap is created
+				err := k8sClient.Get(ctx, multiModelConfigMapKey, multiModelConfigMap)
 				if err != nil {
 					return false
 				}
