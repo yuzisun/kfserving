@@ -27,6 +27,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
@@ -53,19 +54,26 @@ func (c *ConfigMapReconciler) Reconcile(isvc *v1beta1api.InferenceService, req c
 	multiModelConfigMapName := types.NamespacedName{Name: constants.DefaultMultiModelConfigMapName(isvc.Name),Namespace: req.Namespace}
 	if err := c.client.Get(context.TODO(), multiModelConfigMapName, &multiModelConfigMap); err != nil {
 		if errors.IsNotFound(err) {
-			// Create an empty multiModelConfigMap
-			newConfigMap, err := CreateEmptyMultiModelConfigMap(isvc)
-			log.Info("Creating multimodel configmap", "configmap", newConfigMap.Name, "inferenceservice", isvc.Name, "namespace", isvc.Namespace)
-			err = c.client.Create(context.TODO(), newConfigMap)
-			if err != nil {
-				return err
-			} else {
-				return nil
+			storageUri := isvc.Spec.Predictor.GetStorageUri()
+			if storageUri == nil {
+				// If the InferenceService's storageUri is not set, create an empty multiModelConfigMap
+				log.Info("Creating multimodel configmap", "configmap", multiModelConfigMapName, "inferenceservice", isvc.Name, "namespace", isvc.Namespace)
+				newConfigMap, err := CreateEmptyMultiModelConfigMap(isvc)
+				if err != nil {
+					return err
+				}
+				if err := controllerutil.SetControllerReference(isvc, newConfigMap, c.scheme); err != nil {
+					return err
+				}
+				err = c.client.Create(context.TODO(), newConfigMap)
+
+				if err != nil {
+					return err
+				}
 			}
 		} else {
 			return err
 		}
-
 	}
 	return nil
 }

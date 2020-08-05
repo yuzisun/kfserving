@@ -181,7 +181,6 @@ func (p *Predictor) CreatePredictorService(isvc *v1beta1.InferenceService) (*kns
 
 	//If InferenceService's storageUri if empty, create multi-model service configMap and
 	//mount it into this predictor's knative service
-	//TODO: discuss with team, should we mount this configMap for all the InferenceService anyway?
 	storageUri := isvc.Spec.Predictor.GetStorageUri()
 	if storageUri != nil && len(*storageUri) > 0 {
 		multiModelConfigMap, err := configmap.CreateEmptyMultiModelConfigMap(isvc)

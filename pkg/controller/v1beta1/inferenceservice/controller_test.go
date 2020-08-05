@@ -33,6 +33,37 @@ import (
 	"time"
 )
 
+func createTestInferenceService(serviceKey types.NamespacedName, hasStorageUri bool) *v1beta1.InferenceService{
+
+	predictor := v1beta1.PredictorExtensionSpec{
+		Container: v1.Container{
+			Name: "kfs",
+		},
+	}
+	if hasStorageUri {
+		storageUri := "s3://test/mnist/export"
+		predictor.StorageURI = &storageUri
+	}
+	instance := &v1beta1.InferenceService{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      serviceKey.Name,
+			Namespace: serviceKey.Namespace,
+		},
+		Spec: v1beta1.InferenceServiceSpec{
+			Predictor: v1beta1.PredictorSpec{
+				ComponentExtensionSpec: v1beta1.ComponentExtensionSpec{
+					MinReplicas: v1alpha2.GetIntReference(1),
+					MaxReplicas: 3,
+				},
+				Tensorflow: &v1beta1.TensorflowSpec{
+					PredictorExtensionSpec: predictor,
+				},
+			},
+		},
+	}
+	return instance
+}
+
 var _ = Describe("v1beta1 inference service controller", func() {
 	// Define utility constants for object names and testing timeouts/durations and intervals.
 	const (
@@ -65,6 +96,7 @@ var _ = Describe("v1beta1 inference service controller", func() {
             }`,
 		}
 	)
+
 	Context("When creating inference service", func() {
 		It("Should have knative service created", func() {
 			By("By creating a new InferenceService")
@@ -82,35 +114,52 @@ var _ = Describe("v1beta1 inference service controller", func() {
 			serviceName := "foo"
 			var expectedRequest = reconcile.Request{NamespacedName: types.NamespacedName{Name: serviceName, Namespace: "default"}}
 			var serviceKey = expectedRequest.NamespacedName
-			var multiModelConfigMapKey = types.NamespacedName{Name: constants.DefaultMultiModelConfigMapName(serviceName),
-				Namespace: serviceKey.Namespace}
 			var predictorService = types.NamespacedName{Name: constants.DefaultPredictorServiceName(serviceKey.Name),
 				Namespace: serviceKey.Namespace}
-			var storageUri = "s3://test/mnist/export"
 			ctx := context.Background()
-			instance := &v1beta1.InferenceService{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      serviceKey.Name,
-					Namespace: serviceKey.Namespace,
-				},
-				Spec: v1beta1.InferenceServiceSpec{
-					Predictor: v1beta1.PredictorSpec{
-						ComponentExtensionSpec: v1beta1.ComponentExtensionSpec{
-							MinReplicas: v1alpha2.GetIntReference(1),
-							MaxReplicas: 3,
-						},
-						Tensorflow: &v1beta1.TensorflowSpec{
-							PredictorExtensionSpec: v1beta1.PredictorExtensionSpec{
-								StorageURI: &storageUri,
-								Container: v1.Container{
-									Name: "kfs",
-								},
-							},
-						},
-					},
-				},
-			}
+			instance := createTestInferenceService(serviceKey, true)
 
+			Expect(k8sClient.Create(ctx, instance)).Should(Succeed())
+			inferenceService := &v1beta1.InferenceService{}
+
+			Eventually(func() bool {
+				//Check if InferenceService is created
+				err := k8sClient.Get(ctx, serviceKey, inferenceService)
+				if err != nil {
+					return false
+				}
+				return true
+			}, timeout, interval).Should(BeTrue())
+
+			defaultService := &knservingv1.Service{}
+			Eventually(func() error { return k8sClient.Get(context.TODO(), predictorService, defaultService) }, timeout).
+				Should(Succeed())
+			fmt.Printf("knative service %+v\n", defaultService)
+		})
+	})
+
+	Context("When creating and deleting inference service without storageUri", func() {
+		// Create configmap
+		var configMap = &v1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      constants.InferenceServiceConfigMapName,
+				Namespace: constants.KFServingNamespace,
+			},
+			Data: configs,
+		}
+
+		serviceName := "bar"
+		var expectedRequest = reconcile.Request{NamespacedName: types.NamespacedName{Name: serviceName, Namespace: "default"}}
+		var serviceKey = expectedRequest.NamespacedName
+		var multiModelConfigMapKey = types.NamespacedName{Name: constants.DefaultMultiModelConfigMapName(serviceName),
+			Namespace: serviceKey.Namespace}
+		ctx := context.Background()
+		instance := createTestInferenceService(serviceKey, false)
+
+		It("Should have multi-model configmap created", func() {
+			Expect(k8sClient.Create(context.TODO(), configMap)).NotTo(HaveOccurred())
+			defer k8sClient.Delete(context.TODO(), configMap)
+			By("By creating a new InferenceService")
 			Expect(k8sClient.Create(ctx, instance)).Should(Succeed())
 			inferenceService := &v1beta1.InferenceService{}
 			multiModelConfigMap := &corev1.ConfigMap{}
@@ -130,13 +179,13 @@ var _ = Describe("v1beta1 inference service controller", func() {
 				if err != nil {
 					return false
 				}
+
+				//Verify that this configmap's ownerreference is it's parent InferenceService
+				Expect(multiModelConfigMap.OwnerReferences[0].Name).To(Equal(serviceKey.Name))
+
 				return true
 			}, timeout, interval).Should(BeTrue())
-
-			defaultService := &knservingv1.Service{}
-			Eventually(func() error { return k8sClient.Get(context.TODO(), predictorService, defaultService) }, timeout).
-				Should(Succeed())
-			fmt.Printf("knative service %+v\n", defaultService)
 		})
+
 	})
 })
