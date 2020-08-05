@@ -17,11 +17,10 @@ limitations under the License.
 package configmap
 
 import (
+	"context"
 	v1beta1api "github.com/kubeflow/kfserving/pkg/apis/serving/v1beta1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/runtime"
-	knservingv1 "knative.dev/serving/pkg/apis/serving/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
@@ -40,19 +39,20 @@ func NewConfigMapReconciler(client client.Client, scheme *runtime.Scheme) *Confi
 	}
 }
 
-func (r *ConfigMapReconciler) Reconcile(desired *corev1.ConfigMap, trainedModel *v1beta1api.TrainedModel) (*corev1.ConfigMap, error) {
+func (c *ConfigMapReconciler) Reconcile(desired *corev1.ConfigMap, trainedModel *v1beta1api.TrainedModel) error {
 	//TODO make sure this reconcile loop will be triggered by Create/Delete/Update event for TrainedModel
 	//TODO update an existing configmap to add/remove a model in it
 
-	// check if the trainedModel has a delete timestamp
-	// if has -> delete from configmap
-	//  if not have delete timestamp
-	//     addOrupdate configMap
-
-	return nil, nil
-}
-
-func semanticEquals(desiredService, service *knservingv1.Service) bool {
-	return equality.Semantic.DeepEqual(desiredService.Spec.ConfigurationSpec, service.Spec.ConfigurationSpec) &&
-		equality.Semantic.DeepEqual(desiredService.ObjectMeta.Labels, service.ObjectMeta.Labels)
+	if trainedModel.DeletionTimestamp != nil {
+		//A Trainedmodel is being deleted, remove the model from multi-model configmap
+		//TODO call multimodelconfig handler once Yao's PR is merged
+	} else {
+		//A Trainedmodel is created or updated, add or update the model from multi-model configmap
+		//TODO call multimodelconfig handler once Yao's PR is merged
+	}
+	err := c.client.Create(context.TODO(), desired)
+	if err != nil {
+		return err
+	}
+	return nil
 }

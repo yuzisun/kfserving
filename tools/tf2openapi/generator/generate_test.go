@@ -144,7 +144,6 @@ func TestGenerateOpenAPISpecGenerationErr(t *testing.T) {
 	g.Expect(specErr).To(gomega.MatchError(expectedErr))
 }
 
-
 func TestGenerateOpenAPIForRowFmtMultipleTensors(t *testing.T) {
 	// model src: gs://kfserving-samples/models/tensorflow/flowers
 	g := gomega.NewGomegaWithT(t)

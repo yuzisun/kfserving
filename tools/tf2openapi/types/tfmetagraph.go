@@ -12,8 +12,8 @@ import (
 )
 
 type TFMetaGraph struct {
-	SignatureDefs [] TFSignatureDef
-	Tags          [] string
+	SignatureDefs []TFSignatureDef
+	Tags          []string
 }
 
 // Known error messages

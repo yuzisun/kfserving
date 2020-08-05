@@ -25,9 +25,9 @@ func TestFunctionalDifferentFlags(t *testing.T) {
 		cmdArgs      []string
 		expectedSpec []byte
 	}{
-		"Flowers" : {
-			cmdArgs: []string{"--model_base_path", wd + "/testdata/TestFlowers.pb"},
-			expectedSpec:readFile("TestFlowers.golden.json", t),
+		"Flowers": {
+			cmdArgs:      []string{"--model_base_path", wd + "/testdata/TestFlowers.pb"},
+			expectedSpec: readFile("TestFlowers.golden.json", t),
 		},
 		// estimator model src: https://github.com/GoogleCloudPlatform/cloudml-samples/tree/master/census
 		"Census": {

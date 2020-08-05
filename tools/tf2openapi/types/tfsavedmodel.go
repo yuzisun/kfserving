@@ -14,7 +14,7 @@ import (
 )
 
 type TFSavedModel struct {
-	MetaGraphs [] TFMetaGraph
+	MetaGraphs []TFMetaGraph
 }
 
 // Known error messages

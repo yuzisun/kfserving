@@ -19,11 +19,13 @@ package trainedmodel
 import (
 	"context"
 	"github.com/kubeflow/kfserving/pkg/constants"
+	"github.com/kubeflow/kfserving/pkg/controller/v1beta1/trainedmodel/reconcilers/configmap"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"time"
 
 	"github.com/go-logr/logr"
 	v1beta1api "github.com/kubeflow/kfserving/pkg/apis/serving/v1beta1"
@@ -49,7 +51,6 @@ type TrainedModelReconciler struct {
 // +kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch
 // +kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
-
 func (r *TrainedModelReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	_ = context.Background()
 	log := r.Log.WithValues("trainedmodel", req.NamespacedName)
@@ -66,23 +67,27 @@ func (r *TrainedModelReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error
 	}
 	log.Info("Reconciling TrainedModel", "apiVersion", trainedModel.APIVersion, "trainedModel", trainedModel.Spec)
 
-	// use trainedModel's parent InferenceService field to get the target configMap name
-	multiModelConfigMap := constants.DefaultMultiModelConfigMapName(trainedModel.Spec.InferenceService)
+	// Use trainedModel's parent InferenceService field to get the multi-model configMap
+	multiModelConfigMapName := constants.DefaultMultiModelConfigMapName(trainedModel.Spec.InferenceService)
 	configMap := &v1.ConfigMap{}
-	err := r.Get(context.TODO(), types.NamespacedName{Name: multiModelConfigMap, Namespace: constants.KFServingNamespace}, configMap)
+	err := r.Get(context.TODO(), types.NamespacedName{Name: multiModelConfigMapName, Namespace: req.Namespace}, configMap)
 	if err != nil {
-		log.Error(err, "Failed to find Multi-model ConfigMap", "name", constants.InferenceServiceConfigMapName, "namespace", constants.KFServingNamespace)
+		log.Error(err, "Failed to find Multi-model ConfigMap", "name", multiModelConfigMapName, "namespace", req.Namespace)
 		// Error reading the object - requeue the request.
-		return reconcile.Result{}, err
+		return reconcile.Result{Requeue: true, RequeueAfter: 10 * time.Second}, err
 	}
 
-	//configmap.Reconcile ()
+	//Reconcile multi-model configmap to add/update/remove model files
+	configMapReconciler := configmap.NewConfigMapReconciler(r.Client, r.Scheme)
+	if err := configMapReconciler.Reconcile(configMap, trainedModel); err != nil {
+		return reconcile.Result{Requeue: true, RequeueAfter: 10 * time.Second}, err
+	}
 
 	return ctrl.Result{}, nil
 }
 
 func (r *TrainedModelReconciler) updateStatus(desiredService *v1beta1api.TrainedModel) error {
-	//TODO update TrainedModel status
+	//TODO update TrainedModel status object, this will be done in a separate PR
 	return nil
 }
 

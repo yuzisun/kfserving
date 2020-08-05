@@ -5,16 +5,16 @@ import (
 	"log"
 	"net"
 
-	pb "helloworld/proto"
-	"google.golang.org/grpc"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	pb "helloworld/proto"
 )
 
 const (
 	PORT = ":8080"
 )
 
-type server struct {}
+type server struct{}
 
 func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloReply, error) {
 	log.Println("request: ", in.Name)

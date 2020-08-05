@@ -23,7 +23,6 @@ type TrainedModelList struct {
 	Items []TrainedModel `json:"items"`
 }
 
-
 type TrainedModelSpec struct {
 	// Required field for parent inference service
 	InferenceService string `json:"inferenceService"`
@@ -38,4 +37,8 @@ type ModelSpec struct {
 	Framework string `json:"framework"`
 	// Maximum memory this model will consume, this field is used to decide if a model server has enough memory to load this model.
 	Memory resource.Quantity `json:"memory,omitempty"`
+}
+
+func init() {
+	SchemeBuilder.Register(&TrainedModel{}, &TrainedModelList{})
 }

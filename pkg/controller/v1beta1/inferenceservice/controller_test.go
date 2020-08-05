@@ -33,7 +33,7 @@ import (
 	"time"
 )
 
-func createTestInferenceService(serviceKey types.NamespacedName, hasStorageUri bool) *v1beta1.InferenceService{
+func createTestInferenceService(serviceKey types.NamespacedName, hasStorageUri bool) *v1beta1.InferenceService {
 
 	predictor := v1beta1.PredictorExtensionSpec{
 		Container: v1.Container{

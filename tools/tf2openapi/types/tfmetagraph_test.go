@@ -217,8 +217,8 @@ func TestTFMetaGraphTypical(t *testing.T) {
 				},
 			},
 		},
-		Required: []string{"instances"},
-		AdditionalPropertiesAllowed: func(b bool) *bool {return &b}(false),
+		Required:                    []string{"instances"},
+		AdditionalPropertiesAllowed: func(b bool) *bool { return &b }(false),
 	}
 	expectedResponseSchema := &openapi3.Schema{
 		Type: "object",
@@ -241,8 +241,8 @@ func TestTFMetaGraphTypical(t *testing.T) {
 				},
 			},
 		},
-		Required: []string{"predictions"},
-		AdditionalPropertiesAllowed: func(b bool) *bool {return &b}(false),
+		Required:                    []string{"predictions"},
+		AdditionalPropertiesAllowed: func(b bool) *bool { return &b }(false),
 	}
 	requestSchema, responseSchema, err := tfMetaGraph.Schema("sigDefKey")
 	g.Expect(requestSchema).Should(gomega.Equal(expectedRequestSchema))
@@ -253,7 +253,7 @@ func TestTFMetaGraphTypical(t *testing.T) {
 func TestTFMetaGraphMissingSigDef(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
 	tfMetaGraph := expectedTFMetaGraph()
-	_,_, err := tfMetaGraph.Schema("missingSigDefKey")
+	_, _, err := tfMetaGraph.Schema("missingSigDefKey")
 	expectedErr := fmt.Sprintf(SignatureDefNotFoundError, "missingSigDefKey")
 	g.Expect(err).To(gomega.MatchError(expectedErr))
 }

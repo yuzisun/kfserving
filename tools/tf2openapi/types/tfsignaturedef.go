@@ -16,8 +16,8 @@ import (
 type TFSignatureDef struct {
 	Key     string
 	Method  TFMethod
-	Inputs  [] TFTensor
-	Outputs [] TFTensor
+	Inputs  []TFTensor
+	Outputs []TFTensor
 }
 
 type TFMethod int
@@ -30,8 +30,8 @@ const (
 
 //Known error messages
 const (
-	UnsupportedSignatureMethodError        = "signature (%s) contains unsupported method (%s)"
-	UnsupportedAPISchemaError              = "schemas for classify/regress APIs currently not supported"
+	UnsupportedSignatureMethodError    = "signature (%s) contains unsupported method (%s)"
+	UnsupportedAPISchemaError          = "schemas for classify/regress APIs currently not supported"
 	InconsistentInputOutputFormatError = "expecting all output tensors to have -1 in 0th dimension, like the input tensors"
 )
 
@@ -115,39 +115,39 @@ func canHaveRowSchema(t []TFTensor) bool {
 func (t *TFSignatureDef) rowFormatWrapper() (*openapi3.Schema, *openapi3.Schema) {
 	// https://www.tensorflow.org/tfx/serving/api_rest#specifying_input_tensors_in_row_format
 	return &openapi3.Schema{
-		Type: "object",
-		Properties: map[string]*openapi3.SchemaRef{
-			"instances": rowSchema(t.Inputs).NewRef(),
-		},
-		Required:                    []string{"instances"},
-		AdditionalPropertiesAllowed: utils.Bool(false),
-	}, &openapi3.Schema{
-		Type: "object",
-		Properties: map[string]*openapi3.SchemaRef{
-			"predictions": rowSchema(t.Outputs).NewRef(),
-		},
-		Required:                    []string{"predictions"},
-		AdditionalPropertiesAllowed: utils.Bool(false),
-	}
+			Type: "object",
+			Properties: map[string]*openapi3.SchemaRef{
+				"instances": rowSchema(t.Inputs).NewRef(),
+			},
+			Required:                    []string{"instances"},
+			AdditionalPropertiesAllowed: utils.Bool(false),
+		}, &openapi3.Schema{
+			Type: "object",
+			Properties: map[string]*openapi3.SchemaRef{
+				"predictions": rowSchema(t.Outputs).NewRef(),
+			},
+			Required:                    []string{"predictions"},
+			AdditionalPropertiesAllowed: utils.Bool(false),
+		}
 }
 
 func (t *TFSignatureDef) colFormatWrapper() (*openapi3.Schema, *openapi3.Schema) {
 	// https://www.tensorflow.org/tfx/serving/api_rest#specifying_input_tensors_in_column_format
 	return &openapi3.Schema{
-		Type: "object",
-		Properties: map[string]*openapi3.SchemaRef{
-			"inputs": colSchema(t.Inputs).NewRef(),
-		},
-		Required:                    []string{"inputs"},
-		AdditionalPropertiesAllowed: utils.Bool(false),
-	}, &openapi3.Schema{
-		Type: "object",
-		Properties: map[string]*openapi3.SchemaRef{
-			"outputs": colSchema(t.Outputs).NewRef(),
-		},
-		Required:                    []string{"outputs"},
-		AdditionalPropertiesAllowed: utils.Bool(false),
-	}
+			Type: "object",
+			Properties: map[string]*openapi3.SchemaRef{
+				"inputs": colSchema(t.Inputs).NewRef(),
+			},
+			Required:                    []string{"inputs"},
+			AdditionalPropertiesAllowed: utils.Bool(false),
+		}, &openapi3.Schema{
+			Type: "object",
+			Properties: map[string]*openapi3.SchemaRef{
+				"outputs": colSchema(t.Outputs).NewRef(),
+			},
+			Required:                    []string{"outputs"},
+			AdditionalPropertiesAllowed: utils.Bool(false),
+		}
 }
 
 func rowSchema(t []TFTensor) *openapi3.Schema {

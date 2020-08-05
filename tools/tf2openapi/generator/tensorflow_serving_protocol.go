@@ -14,8 +14,6 @@ const (
 	pathTemplate        = "/v1/models/%s/versions/%s:predict"
 )
 
-
-
 func (g *Generator) tfServingOpenAPI(model types.TFSavedModel) (*openapi3.Swagger, error) {
 	requestSchema, responseSchema, err := model.Schema(g.metaGraphTags, g.sigDefKey)
 	if err != nil {

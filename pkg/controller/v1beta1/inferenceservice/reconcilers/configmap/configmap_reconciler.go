@@ -51,7 +51,7 @@ func (c *ConfigMapReconciler) Reconcile(isvc *v1beta1api.InferenceService, req c
 
 	// Find the InferenceService's configmap. If its configmap does not exist, create an empty configmap.
 	multiModelConfigMap := corev1.ConfigMap{}
-	multiModelConfigMapName := types.NamespacedName{Name: constants.DefaultMultiModelConfigMapName(isvc.Name),Namespace: req.Namespace}
+	multiModelConfigMapName := types.NamespacedName{Name: constants.DefaultMultiModelConfigMapName(isvc.Name), Namespace: req.Namespace}
 	if err := c.client.Get(context.TODO(), multiModelConfigMapName, &multiModelConfigMap); err != nil {
 		if errors.IsNotFound(err) {
 			storageUri := isvc.Spec.Predictor.GetStorageUri()
@@ -66,7 +66,6 @@ func (c *ConfigMapReconciler) Reconcile(isvc *v1beta1api.InferenceService, req c
 					return err
 				}
 				err = c.client.Create(context.TODO(), newConfigMap)
-
 				if err != nil {
 					return err
 				}

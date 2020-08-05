@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	pb "github.com/kubeflow/kfserving/tools/tf2openapi/generated/protobuf"
 	"github.com/kubeflow/kfserving/tools/tf2openapi/generator"
 	"github.com/spf13/cobra"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,7 +14,7 @@ import (
 // Known error messages
 const (
 	ModelBasePathError    = "Error reading file %s \n%s"
-	OutputFilePathError = "Failed writing to %s: %s"
+	OutputFilePathError   = "Failed writing to %s: %s"
 	SavedModelFormatError = "SavedModel not in expected format. May be corrupted: "
 )
 

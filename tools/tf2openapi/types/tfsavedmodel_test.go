@@ -127,8 +127,8 @@ func TestTFSavedModelTypical(t *testing.T) {
 				},
 			},
 		},
-		Required: []string{"instances"},
-		AdditionalPropertiesAllowed: func(b bool) *bool {return &b}(false),
+		Required:                    []string{"instances"},
+		AdditionalPropertiesAllowed: func(b bool) *bool { return &b }(false),
 	}
 	expectedResponseSchema := &openapi3.Schema{
 		Type: "object",
@@ -151,10 +151,10 @@ func TestTFSavedModelTypical(t *testing.T) {
 				},
 			},
 		},
-		Required: []string{"predictions"},
-		AdditionalPropertiesAllowed: func(b bool) *bool {return &b}(false),
+		Required:                    []string{"predictions"},
+		AdditionalPropertiesAllowed: func(b bool) *bool { return &b }(false),
 	}
-	requestSchema,responseSchema, err := tfSavedModel.Schema([]string{"serve"}, "sigDefKey")
+	requestSchema, responseSchema, err := tfSavedModel.Schema([]string{"serve"}, "sigDefKey")
 	g.Expect(requestSchema).Should(gomega.Equal(expectedRequestSchema))
 	g.Expect(responseSchema).Should(gomega.Equal(expectedResponseSchema))
 	g.Expect(err).To(gomega.BeNil())
@@ -163,7 +163,7 @@ func TestTFSavedModelTypical(t *testing.T) {
 func TestTFSavedModelMissingMetaGraph(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
 	tfSavedModel := expectedTFSavedModel()
-	_,_, err := tfSavedModel.Schema([]string{"serve", "missing"}, "sigDefKey")
+	_, _, err := tfSavedModel.Schema([]string{"serve", "missing"}, "sigDefKey")
 	expectedErr := fmt.Sprintf(MetaGraphNotFoundError, "[missing serve]")
 	expectedErrPermuted := fmt.Sprintf(MetaGraphNotFoundError, "[serve missing]")
 	g.Expect(err).To(gomega.Or(gomega.MatchError(expectedErr), gomega.MatchError(expectedErrPermuted)))
@@ -172,7 +172,7 @@ func TestTFSavedModelMissingMetaGraph(t *testing.T) {
 func TestTFSavedModelErrMetaGraph(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
 	tfSavedModel := expectedTFSavedModel()
-	_,_, err := tfSavedModel.Schema([]string{"serve"}, "missingSigDefKey")
+	_, _, err := tfSavedModel.Schema([]string{"serve"}, "missingSigDefKey")
 	expectedErr := fmt.Sprintf(SignatureDefNotFoundError, "missingSigDefKey")
 	g.Expect(err).To(gomega.MatchError(expectedErr))
 }
