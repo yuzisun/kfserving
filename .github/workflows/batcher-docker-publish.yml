@@ -1,4 +1,4 @@
-name: Docker
+name: Batcher-Docker
 
 on:
   push:
@@ -47,7 +47,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build image
-        run: docker build . --file batcher.Dockerfile --tag $IMAGE_NAME
+        run: docker build . --file cmd/batcher/Dockerfile --tag $IMAGE_NAME
 
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
