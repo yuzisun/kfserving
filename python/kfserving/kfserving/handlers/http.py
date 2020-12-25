@@ -22,6 +22,8 @@ from cloudevents.sdk.converters.util import has_binary_headers
 from http import HTTPStatus
 from kfserving.kfmodel_repository import KFModelRepository
 from datetime import datetime
+import typing
+from cloudevents.http import from_http
 
 
 class HTTPHandler(tornado.web.RequestHandler):
@@ -50,6 +52,15 @@ class HTTPHandler(tornado.web.RequestHandler):
         return request
 
 
+def has_binary_headers(headers: typing.Dict[str, str]) -> bool:
+    return (
+        "ce-specversion" in headers
+        and "ce-source" in headers
+        and "ce-type" in headers
+        and "ce-id" in headers
+    )
+
+
 class PredictHandler(HTTPHandler):
     async def post(self, name: str):
         if has_binary_headers(self.request.headers):
@@ -75,6 +86,17 @@ class PredictHandler(HTTPHandler):
                 )
 
         model = self.get_model(name)
+        if has_binary_headers(self.request.headers):
+            event = from_http(self.request.headers, self.request.body)
+            body = event['data']
+        else:
+            try:
+                body = json.loads(self.request.body)
+            except json.decoder.JSONDecodeError as e:
+                raise tornado.web.HTTPError(
+                    status_code=HTTPStatus.BAD_REQUEST,
+                    reason="Unrecognized request format: %s" % e
+                )
         request = model.preprocess(body)
         request = self.validate(request)
         response = (await model.predict(request)) if inspect.iscoroutinefunction(model.predict) \

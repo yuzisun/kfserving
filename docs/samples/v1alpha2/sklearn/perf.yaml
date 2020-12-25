@@ -13,7 +13,7 @@ spec:
       restartPolicy: OnFailure
       containers:
       - args:
-        - vegeta -cpus=5 attack -duration=1m -rate=500/1s -targets=/var/vegeta/cfg
+        - vegeta -cpus=5 attack -duration=3m -rate=1/1s -targets=/var/vegeta/cfg
           | vegeta report -type=text
         command:
         - sh 
@@ -33,7 +33,7 @@ spec:
 apiVersion: v1
 data:
   cfg: |
-    POST http://sklearn-iris.kfserving-test.svc.cluster.local/v1/models/sklearn-iris:predict
+    POST http://sklearn-iris-perf.default.svc.cluster.local/v1/models/sklearn-iris:predict
     @/var/vegeta/payload
   payload: |
     {
