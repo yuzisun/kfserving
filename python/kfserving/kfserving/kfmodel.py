@@ -56,21 +56,22 @@ class KFModel:
         # If cloudevent dict, then parse 'data' field. Otherwise, pass through.
         response = request
 
-        if(isinstance(request, CloudEvent)):
+        if isinstance(request, CloudEvent):
             response = request.data
-            if(isinstance(response, bytes)):
+            if isinstance(response, bytes):
                 try:
                     response = json.loads(response.decode('UTF-8'))
                 except (json.decoder.JSONDecodeError, UnicodeDecodeError) as e:
                     attributes = request._attributes
                     if "content-type" in attributes:
-                        if attributes["content-type"] == "application/cloudevents+json" or attributes["content-type"] == "application/json":
+                        if attributes["content-type"] == "application/cloudevents+json" \
+                                or attributes["content-type"] == "application/json":
                             raise tornado.web.HTTPError(
                                 status_code=HTTPStatus.BAD_REQUEST,
                                 reason="Unrecognized request format: %s" % e
                             )
 
-        elif(isinstance(request, dict)): #CE structured - https://github.com/cloudevents/sdk-python/blob/8773319279339b48ebfb7b856b722a2180458f5f/cloudevents/http/http_methods.py#L126 
+        elif isinstance(request, dict): #CE structured - https://github.com/cloudevents/sdk-python/blob/8773319279339b48ebfb7b856b722a2180458f5f/cloudevents/http/http_methods.py#L126
  
             if "time" in request \
                 and "type" in request \
