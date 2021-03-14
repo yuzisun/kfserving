@@ -19,6 +19,7 @@ from kfserving.storage import Storage
 from kfserving.constants import constants
 from kfserving.utils import utils
 from kfserving.handlers import http
+from kfserving.batcher import BatchQueue
 
 # import client apis into kfserving package
 from kfserving.api.kf_serving_client import KFServingClient

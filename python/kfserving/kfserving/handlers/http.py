@@ -50,6 +50,7 @@ class HTTPHandler(tornado.web.RequestHandler):
                 )
         return request
 
+
 class PredictHandler(HTTPHandler):
     async def post(self, name: str):
         if has_binary_headers(self.request.headers):            
