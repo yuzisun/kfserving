@@ -3,6 +3,7 @@ from functools import wraps
 from inspect import iscoroutinefunction
 import time
 from typing import Any, Callable, List, Optional, overload, Tuple, TypeVar
+import logging
 
 
 class BatchQueue:
@@ -29,7 +30,7 @@ class BatchQueue:
         self.max_batch_size = max_batch_size
         self.timeout_s = timeout_s
 
-    def put(self, request: Tuple[Any, asyncio.Future]) -> None:
+    def put(self, request: Any) -> None:
         self.queue.put_nowait(request)
         # Signal when the full batch is ready. The event will be reset
         # in wait_for_batch.
@@ -55,11 +56,15 @@ class BatchQueue:
             # If the timeout is 0, wait for any item to be available on the
             # queue.
             if curr_timeout == 0:
+                print("asyncio wait 0")
+                logging.info(f"awaiting message in queue {self.qsize()}")
                 batch.append(await self.queue.get())
+                logging.info(f"batch size {len(batch)}")
             # If the timeout is nonzero, wait for either the timeout to occur
             # or the max batch size to be ready.
             else:
                 try:
+                    print("asyncio wait")
                     await asyncio.wait_for(self.full_batch_event.wait(),
                                            curr_timeout)
                 except asyncio.TimeoutError:

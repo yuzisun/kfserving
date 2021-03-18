@@ -1,13 +1,9 @@
-
 # End to end inference example with Minio and Kafka
 ## Setup
 1. Your ~/.kube/config should point to a cluster with [KFServing installed](https://github.com/kubeflow/kfserving/#install-kfserving).
 2. Your cluster's Istio Ingress gateway must be [network accessible](https://istio.io/latest/docs/tasks/traffic-management/ingress/ingress-control/).
 3. Install Minio with following Minio deploy step.
 4. Use existing Kafka cluster or install Kafka on your cluster with [Confluent helm chart](https://www.confluent.io/blog/getting-started-apache-kafka-kubernetes/).
-5. Install [Kafka Event Source](https://github.com/knative/eventing-contrib/tree/master/kafka/source).
-6. Kubernetes 1.15+
-7. KFServing 0.3+
 
 This example shows an end to end inference pipeline which processes an kafka event and invoke the inference service to get the prediction with provided
 pre/post processing code.
@@ -34,12 +30,6 @@ my-kafka-cp-zookeeper-0   2/2     Running   0          127m
 ```
 
 ## Install Knative Eventing and Kafka Event Source
-- Install [Knative Eventing Core >= 0.18](https://knative.dev/docs/install/any-kubernetes-cluster/#installing-the-eventing-component)
-- Install [Kafka Event Source](https://github.com/knative-sandbox/eventing-kafka/releases).
-- Install `InferenceService` addressable cluster role
-```bash
-kubectl apply -f addressable-resolver.yaml
-```
 
 ## Deploy Minio
 - If you do not have Minio setup in your cluster, you can run following command to install Minio test instance.
@@ -72,7 +62,7 @@ mc admin service restart myminio
 
 ## Upload the mnist model to Minio
 ```
-gsutil cp gs://kfserving-examples/models/mnist .
+gsutil cp gs://kfserving-examples/models/tensorflow/mnist .
 mc cp -r mnist myminio/
 ```
 
@@ -108,17 +98,6 @@ then calls out to predictor to get the prediction response which in turn invokes
 kubectl get pods -l serving.kubeflow.org/inferenceservice=mnist
 mnist-predictor-default-9t5ms-deployment-74f5cd7767-khthf     2/2     Running       0          10s
 mnist-transformer-default-jmf98-deployment-8585cbc748-ftfhd   2/2     Running       0          14m
-```
-
-## Create kafka event source
-Apply kafka event source which creates the kafka consumer pod to pull the events from kafka and deliver to inference service.
-```bash
-kubectl apply -f kafka-source.yaml
-```
-
-This creates the kafka source pod which consumers the events from `mnist` topic
-```bash
-kafkasource-kafka-source-3d809fe2-1267-11ea-99d0-42010af00zbn5h   1/1     Running   0          8h
 ```
 
 ## Upload a digit image to Minio mnist bucket

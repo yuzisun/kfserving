@@ -20,6 +20,7 @@ from kfserving.constants import constants
 from kfserving.utils import utils
 from kfserving.handlers import http
 from kfserving.batcher import BatchQueue
+from kfserving.kafka_consumer import KafkaConsumer
 
 # import client apis into kfserving package
 from kfserving.api.kf_serving_client import KFServingClient

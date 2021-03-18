@@ -14,7 +14,12 @@
 
 import kfserving
 import argparse
+import asyncio
 from .image_transformer import ImageTransformer
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logger.info('message')
 
 DEFAULT_MODEL_NAME = "model"
 
@@ -22,10 +27,18 @@ parser = argparse.ArgumentParser(parents=[kfserving.kfserver.parser])
 parser.add_argument('--model_name', default=DEFAULT_MODEL_NAME,
                     help='The name that the model is served under.')
 parser.add_argument('--predictor_host', help='The URL for the model predict function', required=True)
+parser.add_argument('--topics', help='Kafka topic list', required=True)
+parser.add_argument('--bootstrap_servers', help='Kafka bootstrap servers', required=True)
+parser.add_argument('--consumer_group', help='Kafka consumer group id', required=True)
 
 args, _ = parser.parse_known_args()
 
-if __name__ == "__main__":
+
+async def main():
     transformer = ImageTransformer(args.model_name, predictor_host=args.predictor_host)
-    kfserver = kfserving.KFServer()
-    kfserver.start(models=[transformer])
+    consumer = kfserving.KafkaConsumer(transformer, [args.topics], config={'bootstrap.servers':args.bootstrap_servers, 'group.id': args.consumer_group, 'auto.offset.reset': 'latest'})
+    tasks = []
+    tasks.append(asyncio.create_task(consumer.handle_batch()))
+    consumer.consume_records()
+
+asyncio.run(main())    

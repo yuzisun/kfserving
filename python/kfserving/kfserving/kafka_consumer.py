@@ -15,8 +15,8 @@
 from typing import Dict, List
 from confluent_kafka import Consumer
 from kfserving import KFModel
-from kfserving import Batcher
-import json
+from kfserving import BatchQueue
+import asyncio
 import logging
 import inspect
 
@@ -29,10 +29,13 @@ class KafkaConsumer:
         self.consumer = Consumer(config)
         self.ready = False
         self.model.load()
+        logging.info(f"subscribing to topics {topics}")
         self.consumer.subscribe(topics)
-        self.batcher = Batcher()
+        logging.info(f"creating batch queue")
+        self.batch_queue = BatchQueue()
 
     def consume_records(self):
+        logging.info(f"start consuming records")
         try:
             while True:
                 record = self.consumer.poll()
@@ -41,18 +44,27 @@ class KafkaConsumer:
                         logging.error(f'Consumer error: {record.error()}')
                     else:
                         logging.info(f'Received message: partition:{record.partition()}, offset:{record.offset()}')
-                        data = record.value().decode('utf-8')
-                        event = json.loads(data)
-
-                        self.msg_process(event)
-                        # commit offset
+                        logging.info(f'current qsiz {self.batch_queue.qsize()}')
+                        self.batch_queue.put(record.value())
                 else:
+                    logging.info("no message")
                     continue
+        except KeyboardInterrupt:
+            pass
         finally:
             self.consumer.close()
 
-    def msg_process(self, event):
-        request = self.model.preprocess(event)
-        response = (await self.model.predict(request)) if inspect.iscoroutinefunction(self.model.predict) \
-            else self.model.predict(request)
-        self.model.postprocess(response)
+    async def handle_batch(self):
+        logging.info(f"start processing records")
+        while True:
+            logging.info(f'waiting for batch')
+            batch = await self.batch_queue.wait_for_batch()
+            logging.info(f'Received batch:{batch}')
+            request = self.model.preprocess({"instances": batch})
+            response = (await self.model.predict(request)) if inspect.iscoroutinefunction(self.model.predict) \
+                else self.model.predict(request)
+            logging.info(response)
+            self.model.postprocess(response)
+            # commit offset
+            self.consumer.commit(asynchronous=False)
+
