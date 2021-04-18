@@ -2,6 +2,8 @@ apiVersion: serving.kubeflow.org/v1beta1
 kind: InferenceService
 metadata:
   name: torchserve-transformer
+  annotations:
+    sidecar.istio.io/inject: "true"  
 spec:
   transformer:
     containers:
