@@ -13,6 +13,8 @@ webhooks:
         path: /mutate-serving-kubeflow-org-v1alpha2-inferenceservice
     failurePolicy: Fail
     name: inferenceservice.kfserving-webhook-server.defaulter
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
     rules:
       - apiGroups:
           - serving.kubeflow.org
@@ -31,6 +33,8 @@ webhooks:
         path: /mutate-serving-kubeflow-org-v1beta1-inferenceservice
     failurePolicy: Fail
     name: inferenceservice.kfserving-webhook-server.v1beta1.defaulter
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
     rules:
       - apiGroups:
           - serving.kubeflow.org
@@ -49,6 +53,8 @@ webhooks:
         path: /mutate-pods
     failurePolicy: Fail
     name: inferenceservice.kfserving-webhook-server.pod-mutator
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
     namespaceSelector:
       matchExpressions:
         - key: control-plane
@@ -83,6 +89,8 @@ webhooks:
         path: /validate-serving-kubeflow-org-v1alpha2-inferenceservice
     failurePolicy: Fail
     name: inferenceservice.kfserving-webhook-server.validator
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
     rules:
       - apiGroups:
           - serving.kubeflow.org
@@ -101,6 +109,8 @@ webhooks:
         path: /validate-serving-kubeflow-org-v1beta1-inferenceservice
     failurePolicy: Fail
     name: inferenceservice.kfserving-webhook-server.v1beta1.validator
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
     rules:
       - apiGroups:
           - serving.kubeflow.org
@@ -126,6 +136,8 @@ webhooks:
         path: /validate-serving-kubeflow-org-v1alpha1-trainedmodel
     failurePolicy: Fail
     name: trainedmodel.kfserving-webhook-server.validator
+    admissionReviewVersions: ["v1", "v1beta1"]
+    sideEffects: None
     rules:
       - apiGroups:
           - serving.kubeflow.org
