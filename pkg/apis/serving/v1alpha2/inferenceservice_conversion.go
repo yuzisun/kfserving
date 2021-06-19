@@ -217,13 +217,21 @@ func (src *InferenceService) ConvertTo(dstRaw conversion.Hub) error {
 	return nil
 }
 
+func getRuntimeVersion(version *string) string {
+	if version != nil {
+		return *version
+	} else {
+		return ""
+	}
+}
+
 // Convert from hub version v1beta1 to v1alpha2
 func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 	src := srcRaw.(*v1beta1.InferenceService)
 	dst.ObjectMeta = src.ObjectMeta
 	if src.Spec.Predictor.Tensorflow != nil {
 		dst.Spec.Default.Predictor.Tensorflow = &TensorflowSpec{
-			RuntimeVersion: *src.Spec.Predictor.Tensorflow.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.Tensorflow.RuntimeVersion),
 			Resources:      src.Spec.Predictor.Tensorflow.Resources,
 		}
 		if src.Spec.Predictor.Tensorflow.StorageURI != nil {
@@ -231,7 +239,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 		}
 	} else if src.Spec.Predictor.SKLearn != nil {
 		dst.Spec.Default.Predictor.SKLearn = &SKLearnSpec{
-			RuntimeVersion: *src.Spec.Predictor.SKLearn.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.SKLearn.RuntimeVersion),
 			Resources:      src.Spec.Predictor.SKLearn.Resources,
 		}
 		if src.Spec.Predictor.SKLearn.StorageURI != nil {
@@ -239,7 +247,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 		}
 	} else if src.Spec.Predictor.PMML != nil {
 		dst.Spec.Default.Predictor.PMML = &PMMLSpec{
-			RuntimeVersion: *src.Spec.Predictor.PMML.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.PMML.RuntimeVersion),
 			Resources:      src.Spec.Predictor.PMML.Resources,
 		}
 		if src.Spec.Predictor.PMML.StorageURI != nil {
@@ -247,7 +255,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 		}
 	} else if src.Spec.Predictor.XGBoost != nil {
 		dst.Spec.Default.Predictor.XGBoost = &XGBoostSpec{
-			RuntimeVersion: *src.Spec.Predictor.XGBoost.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.XGBoost.RuntimeVersion),
 			Resources:      src.Spec.Predictor.XGBoost.Resources,
 		}
 		if src.Spec.Predictor.XGBoost.StorageURI != nil {
@@ -255,7 +263,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 		}
 	} else if src.Spec.Predictor.LightGBM != nil {
 		dst.Spec.Default.Predictor.LightGBM = &LightGBMSpec{
-			RuntimeVersion: *src.Spec.Predictor.LightGBM.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.LightGBM.RuntimeVersion),
 			Resources:      src.Spec.Predictor.LightGBM.Resources,
 		}
 		if src.Spec.Predictor.LightGBM.StorageURI != nil {
@@ -263,7 +271,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 		}
 	} else if src.Spec.Predictor.Triton != nil {
 		dst.Spec.Default.Predictor.Triton = &TritonSpec{
-			RuntimeVersion: *src.Spec.Predictor.Triton.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.Triton.RuntimeVersion),
 			Resources:      src.Spec.Predictor.Triton.Resources,
 		}
 		if src.Spec.Predictor.Triton.StorageURI != nil {
@@ -271,7 +279,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 		}
 	} else if src.Spec.Predictor.ONNX != nil {
 		dst.Spec.Default.Predictor.ONNX = &ONNXSpec{
-			RuntimeVersion: *src.Spec.Predictor.ONNX.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.ONNX.RuntimeVersion),
 			Resources:      src.Spec.Predictor.ONNX.Resources,
 		}
 		if src.Spec.Predictor.ONNX.StorageURI != nil {
@@ -279,7 +287,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 		}
 	} else if src.Spec.Predictor.PyTorch != nil {
 		dst.Spec.Default.Predictor.PyTorch = &PyTorchSpec{
-			RuntimeVersion: *src.Spec.Predictor.PyTorch.RuntimeVersion,
+			RuntimeVersion: getRuntimeVersion(src.Spec.Predictor.PyTorch.RuntimeVersion),
 			Resources:      src.Spec.Predictor.PyTorch.Resources,
 		}
 		if src.Spec.Predictor.PyTorch.StorageURI != nil {
@@ -338,7 +346,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 				Alibi: &AlibiExplainerSpec{
 					Type:           AlibiExplainerType(src.Spec.Explainer.Alibi.Type),
 					StorageURI:     src.Spec.Explainer.Alibi.StorageURI,
-					RuntimeVersion: *src.Spec.Explainer.Alibi.RuntimeVersion,
+					RuntimeVersion: getRuntimeVersion(src.Spec.Explainer.Alibi.RuntimeVersion),
 					Resources:      src.Spec.Explainer.Alibi.Resources,
 				},
 			}
@@ -347,7 +355,7 @@ func (dst *InferenceService) ConvertFrom(srcRaw conversion.Hub) error {
 				AIX: &AIXExplainerSpec{
 					Type:           AIXExplainerType(src.Spec.Explainer.AIX.Type),
 					StorageURI:     src.Spec.Explainer.AIX.StorageURI,
-					RuntimeVersion: *src.Spec.Explainer.AIX.RuntimeVersion,
+					RuntimeVersion: getRuntimeVersion(src.Spec.Explainer.AIX.RuntimeVersion),
 					Resources:      src.Spec.Explainer.AIX.Resources,
 				},
 			}
